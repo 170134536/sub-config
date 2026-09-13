@@ -1,0 +1,46 @@
+# edgetunnel 订阅转换基础模板（api.v1.mk 的 clash_rule_base）
+# DNS 只用 trli 两个带广告过滤的 DoH，无公网兜底。
+# 注意：proxy-groups / proxies / rules 由 subconverter 按 ini 自动追加，不要写在这里。
+
+mixed-port: 7890
+allow-lan: false
+mode: rule
+log-level: warning
+ipv6: false
+
+unified-delay: true
+tcp-concurrent: true
+global-client-fingerprint: chrome
+
+dns:
+  enable: true
+  listen: 127.0.0.1:1053
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  ipv6: false
+  respect-rules: false
+
+  nameserver:
+    - https://dns-cn.trli.club/doh/ad-dns-pro
+
+  fallback:
+    - https://dns.trli.club/doh/ad-dns-pro
+
+  nameserver-policy:
+    geosite:cn:
+      - https://dns-cn.trli.club/doh/ad-dns-pro
+    geosite:geolocation-!cn:
+      - https://dns.trli.club/doh/ad-dns-pro
+
+  proxy-server-nameserver:
+    - https://dns-cn.trli.club/doh/ad-dns-pro
+
+  # 仅用于引导解析两个 DoH 服务器自身的域名，不参与业务查询
+  default-nameserver:
+    - 223.5.5.5
+
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    geosite:
+      - gfw
